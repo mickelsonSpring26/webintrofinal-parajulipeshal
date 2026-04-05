@@ -105,6 +105,15 @@ const renderContentPage = () => {
   formElement.appendChild(document.createElement("br"));
   formElement.appendChild(document.createElement("br"));
 
+  const pictureLabelElement = document.createElement("label");
+  pictureLabelElement.textContent = "Upload Picture: ";
+  const pictureInputElement = document.createElement("input");
+  pictureInputElement.type = "file";
+  pictureLabelElement.appendChild(pictureInputElement);
+  formElement.appendChild(pictureLabelElement);
+  formElement.appendChild(document.createElement("br"));
+  formElement.appendChild(document.createElement("br"));
+
   const submitButtonElement = document.createElement("button");
   submitButtonElement.type = "submit";
   submitButtonElement.textContent = "Add Crop";
