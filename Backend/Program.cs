@@ -14,7 +14,7 @@ app.MapPost("/crops", (Crop crop) => {
 });
 
 app.MapGet("/crops/{userName}", (string userName) => {
-    return Results.Ok(crops.Where(c => c.UserName == userName).ToList());
+    return Results.Ok(crops.Where(c => c.UserName == userName).ToList());  //this implements deleting
 });
 
 app.Run();

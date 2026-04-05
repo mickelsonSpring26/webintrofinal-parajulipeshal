@@ -1,5 +1,5 @@
 import { GetCurrentUser, SetCurrentUser } from "./domain.js";
-import { addCrop, getCrops } from "./service.js";
+import { addCrop, getCrops, calculateGrowthStage, deleteCrop } from "./service.js";
 
 const setUserInQueryString = ()=>{
     const user= GetCurrentUser();
@@ -14,15 +14,15 @@ const loginUserFromQueryString= ()=>{
 }
 const renderForm = () => {
   const formElement = document.createElement("form");
-  const nameLabel = document.createElement("label");
+  const nameLabelElement = document.createElement("label");
   const inputElement = document.createElement("input");
   const breakElement = document.createElement("br");
   const submitElement = document.createElement("button");
 
-  nameLabel.textContent = "Name";
-  nameLabel.appendChild(inputElement);
+  nameLabelElement.textContent = "Name";
+  nameLabelElement.appendChild(inputElement);
   submitElement.textContent = "submit";
-  formElement.replaceChildren(nameLabel, breakElement, submitElement);
+  formElement.replaceChildren(nameLabelElement, breakElement, submitElement);
 
   formElement.addEventListener("submit", (e) => {
     e.preventDefault();
@@ -43,89 +43,98 @@ const renderContentPage = () => {
 
  //this is heading part
 
-  const heading = document.createElement("h2");
-  heading.textContent = username + "'s Dashboard";
-  containerElement.appendChild(heading);
+  const headingElement = document.createElement("h2");
+  headingElement.textContent = username + "'s Dashboard";
+  containerElement.appendChild(headingElement);
 
   // this is the form to add the crops
-  const formTitle = document.createElement("h3");
-  formTitle.textContent = "Add a Crop";
-  containerElement.appendChild(formTitle);
+  const formTitleElement = document.createElement("h3");
+  formTitleElement.textContent = "Add a Crop";
+  containerElement.appendChild(formTitleElement);
 
-  const form = document.createElement("form");
+  const formElement = document.createElement("form");
 
-  const cropTypeLabel = document.createElement("label");
-  cropTypeLabel.textContent = "Crop Type: ";
-  const cropTypeSelect = document.createElement("select");
-  cropTypeSelect.name = "cropType";
-  cropTypeSelect.required = true;
+  const cropTypeLabelElement = document.createElement("label");
+  cropTypeLabelElement.textContent = "Crop Type: ";
+  const cropTypeSelectElement = document.createElement("select");
+  cropTypeSelectElement.name = "cropType";
+  cropTypeSelectElement.required = true;
   const options = ["", "Wheat", "Rice", "Corn", "Barley", "Soybean", "Cotton"];
   options.forEach(opt => {
-    const option = document.createElement("option");
-    option.value = opt;
-    option.textContent = opt || "Select a crop";
-    cropTypeSelect.appendChild(option);
+    const optionElement = document.createElement("option");
+    optionElement.value = opt;
+    optionElement.textContent = opt || "Select a crop";
+    cropTypeSelectElement.appendChild(optionElement);
   });
-  cropTypeLabel.appendChild(cropTypeSelect);
-  form.appendChild(cropTypeLabel);
-  form.appendChild(document.createElement("br"));
-  form.appendChild(document.createElement("br"));
+  cropTypeLabelElement.appendChild(cropTypeSelectElement);
+  formElement.appendChild(cropTypeLabelElement);
+  formElement.appendChild(document.createElement("br"));
+  formElement.appendChild(document.createElement("br"));
 
-  const plantingDateLabel = document.createElement("label");
-  plantingDateLabel.textContent = "Planting Date: ";
-  const plantingDateInput = document.createElement("input");
-  plantingDateInput.type = "date";
-  plantingDateInput.name = "plantingDate";
-  plantingDateInput.required = true;
-  plantingDateLabel.appendChild(plantingDateInput);
-  form.appendChild(plantingDateLabel);
-  form.appendChild(document.createElement("br"));
-  form.appendChild(document.createElement("br"));
+  const plantingDateLabelElement = document.createElement("label");
+  plantingDateLabelElement.textContent = "Planting Date: ";
+  const plantingDateInputElement = document.createElement("input");
+  plantingDateInputElement.type = "date";
+  plantingDateInputElement.name = "plantingDate";
+  plantingDateInputElement.required = true;
+  plantingDateLabelElement.appendChild(plantingDateInputElement);
+  formElement.appendChild(plantingDateLabelElement);
+  formElement.appendChild(document.createElement("br"));
+  formElement.appendChild(document.createElement("br"));
 
-  const fieldLocationLabel = document.createElement("label");
-  fieldLocationLabel.textContent = "Field Location: ";
-  const fieldLocationInput = document.createElement("input");
-  fieldLocationInput.type = "text";
-  fieldLocationInput.name = "fieldLocation";
-  fieldLocationInput.required = true;
-  fieldLocationLabel.appendChild(fieldLocationInput);
-  form.appendChild(fieldLocationLabel);
-  form.appendChild(document.createElement("br"));
-  form.appendChild(document.createElement("br"));
+  const fieldLocationLabelElement = document.createElement("label");
+  fieldLocationLabelElement.textContent = "Field Location: ";
+  const fieldLocationInputElement = document.createElement("input");
+  fieldLocationInputElement.type = "text";
+  fieldLocationInputElement.name = "fieldLocation";
+  fieldLocationInputElement.required = true;
+  fieldLocationLabelElement.appendChild(fieldLocationInputElement);
+  formElement.appendChild(fieldLocationLabelElement);
+  formElement.appendChild(document.createElement("br"));
+  formElement.appendChild(document.createElement("br"));
 
-  const quantityLabel = document.createElement("label");
-  quantityLabel.textContent = "Quantity: ";
-  const quantityInput = document.createElement("input");
-  quantityInput.type = "number";
-  quantityInput.name = "quantity";
-  quantityInput.min = "1";
-  quantityInput.required = true;
-  quantityLabel.appendChild(quantityInput);
-  form.appendChild(quantityLabel);
-  form.appendChild(document.createElement("br"));
-  form.appendChild(document.createElement("br"));
+  const quantityLabelElement = document.createElement("label");
+  quantityLabelElement.textContent = "Quantity: ";
+  const quantityInputElement = document.createElement("input");
+  quantityInputElement.type = "number";
+  quantityInputElement.name = "quantity";
+  quantityInputElement.min = "1";
+  quantityInputElement.required = true;
+  quantityLabelElement.appendChild(quantityInputElement);
+  formElement.appendChild(quantityLabelElement);
+  formElement.appendChild(document.createElement("br"));
+  formElement.appendChild(document.createElement("br"));
 
-  const submitButton = document.createElement("button");
-  submitButton.type = "submit";
-  submitButton.textContent = "Add Crop";
-  form.appendChild(submitButton);
+  const submitButtonElement = document.createElement("button");
+  submitButtonElement.type = "submit";
+  submitButtonElement.textContent = "Add Crop";
+  formElement.appendChild(submitButtonElement);
 
-  form.addEventListener("submit", async (e) => {
+  const resetButtonElement = document.createElement("button");
+  resetButtonElement.type = "button";
+  resetButtonElement.textContent = "Reset";
+  resetButtonElement.classList.add("reset-button");
+  resetButtonElement.addEventListener("click", () => {
+    formElement.reset();
+  });
+  formElement.appendChild(resetButtonElement);
+
+  formElement.addEventListener("submit", async (e) => {
     e.preventDefault();
     const cropData = {
       userName: username,
-      cropType: cropTypeSelect.value,
-      plantingDate: plantingDateInput.value,
-      fieldLocation: fieldLocationInput.value,
-      quantity: quantityInput.value
+      cropType: cropTypeSelectElement.value,
+      plantingDate: plantingDateInputElement.value,
+      fieldLocation: fieldLocationInputElement.value,
+      quantity: quantityInputElement.value
     };
     
     await addCrop(cropData);
-    form.reset();
+    formElement.reset();
     displayCrops(username, containerElement);
   });
 
-  containerElement.appendChild(form);
+  containerElement.appendChild(formElement);
 
   displayCrops(username, containerElement);
 
@@ -144,48 +153,80 @@ const renderContentPage = () => {
 
 const displayCrops = async (username, containerElement) => {
 
-  const existingCropsDiv = containerElement.querySelector("#cropsDisplay");
-  if (existingCropsDiv) {
-    existingCropsDiv.replaceChildren();
+  const existingCropsDivElement = containerElement.querySelector("#cropsDisplay");
+  if (existingCropsDivElement) {
+    existingCropsDivElement.replaceChildren();
   }
 
   const crops = await getCrops(username);
   
   if (crops.length > 0) {
-    const cropsDiv = document.createElement("div");
-    cropsDiv.id = "cropsDisplay";
+    const cropsDivElement = document.createElement("div");
+    cropsDivElement.id = "cropsDisplay";
 
-    const cropsTitle = document.createElement("h3");
-    cropsTitle.textContent = "Your Crops";
-    cropsDiv.appendChild(cropsTitle);
+    const cropsTitleElement = document.createElement("h3");
+    cropsTitleElement.textContent = "Your Crops";
+    cropsDivElement.appendChild(cropsTitleElement);
 
     crops.forEach((crop) => {
-      const cropCard = document.createElement("div");
-      cropCard.style.border = "1px solid #ddd";
-      cropCard.style.padding = "10px";
-      cropCard.style.marginBottom = "10px";
-      cropCard.style.borderRadius = "4px";
+      const cropCardElement = document.createElement("div");
+      cropCardElement.classList.add("crop-card");
 
-      const cropTypeText = document.createElement("p");
-      cropTypeText.textContent = "Crop Type: " + crop.cropType;
-      cropCard.appendChild(cropTypeText);
+      const cropTypeTextElement = document.createElement("p");
+      cropTypeTextElement.textContent = "Crop Type: " + crop.cropType;
+      cropCardElement.appendChild(cropTypeTextElement);
 
-      const plantingDateText = document.createElement("p");
-      plantingDateText.textContent = "Planting Date: " + crop.plantingDate;
-      cropCard.appendChild(plantingDateText);
+      const plantingDateTextElement = document.createElement("p");
+      plantingDateTextElement.textContent = "Planting Date: " + crop.plantingDate;
+      cropCardElement.appendChild(plantingDateTextElement);
 
-      const fieldLocationText = document.createElement("p");
-      fieldLocationText.textContent = "Field Location: " + crop.fieldLocation;
-      cropCard.appendChild(fieldLocationText);
+      const fieldLocationTextElement = document.createElement("p");
+      fieldLocationTextElement.textContent = "Field Location: " + crop.fieldLocation;
+      cropCardElement.appendChild(fieldLocationTextElement);
 
-      const quantityText = document.createElement("p");
-      quantityText.textContent = "Quantity: " + crop.quantity;
-      cropCard.appendChild(quantityText);
+      const quantityTextElement = document.createElement("p");
+      quantityTextElement.textContent = "Quantity: " + crop.quantity;
+      cropCardElement.appendChild(quantityTextElement);
 
-      cropsDiv.appendChild(cropCard);
+      const growthStage = calculateGrowthStage(crop.plantingDate);
+      const growthStageTextElement = document.createElement("p");
+      growthStageTextElement.classList.add("growth-stage-text");
+      growthStageTextElement.textContent = "Growth Stage: " + growthStage.stage;
+      cropCardElement.appendChild(growthStageTextElement);
+
+      const daysElapsedTextElement = document.createElement("p");
+      daysElapsedTextElement.textContent = "Days Since Planting: " + growthStage.daysElapsed;
+      cropCardElement.appendChild(daysElapsedTextElement);
+
+      const progressBarContainerElement = document.createElement("div");
+      progressBarContainerElement.classList.add("progress-bar-container");
+
+      const progressBarElement = document.createElement("div");
+      progressBarElement.classList.add("progress-bar");
+      progressBarElement.style.width = growthStage.percentage + "%";
+
+      progressBarContainerElement.appendChild(progressBarElement);
+      cropCardElement.appendChild(progressBarContainerElement);
+
+      const progressPercentTextElement = document.createElement("p");
+      progressPercentTextElement.classList.add("progress-percent-text");
+      progressPercentTextElement.textContent = "Progress: " + Math.round(growthStage.percentage) + "%";
+      cropCardElement.appendChild(progressPercentTextElement);
+
+      const deleteButtonElement = document.createElement("button");
+      deleteButtonElement.type = "button";
+      deleteButtonElement.textContent = "Delete";
+      deleteButtonElement.classList.add("delete-button");
+      deleteButtonElement.addEventListener("click", async () => {
+        await deleteCrop(crop.id);
+        displayCrops(username, containerElement);
+      });
+      cropCardElement.appendChild(deleteButtonElement);
+
+      cropsDivElement.appendChild(cropCardElement);
     });
 
-    containerElement.appendChild(cropsDiv);
+    containerElement.appendChild(cropsDivElement);
   } else {
     console.log("No crops found for user:", username);
   }
