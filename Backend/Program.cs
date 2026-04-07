@@ -27,9 +27,9 @@ app.Run();
 
 class Crop {
     public int Id { get; set; }
-    public string UserName { get; set; }
-    public string CropType { get; set; }
-    public string PlantingDate { get; set; }
-    public string FieldLocation { get; set; }
-    public string Quantity { get; set; }
+    public string? UserName { get; set; }
+    public string? CropType { get; set; }
+    public string? PlantingDate { get; set; }
+    public string? FieldLocation { get; set; }
+    public string? Quantity { get; set; }
 }
