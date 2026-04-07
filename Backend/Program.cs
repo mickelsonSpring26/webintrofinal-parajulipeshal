@@ -14,7 +14,13 @@ app.MapPost("/crops", (Crop crop) => {
 });
 
 app.MapGet("/crops/{userName}", (string userName) => {
-    return Results.Ok(crops.Where(c => c.UserName == userName).ToList());  //this implements deleting
+    return Results.Ok(crops.Where(c => c.UserName == userName).ToList());
+});
+
+app.MapDelete("/crops/{id}", (int id) => {  //I found that we use MapDelete to accept the delete request from out service.js file
+    var crop = crops.FirstOrDefault(c => c.Id == id);
+    crops.Remove(crop!);
+    return Results.Ok(crop);
 });
 
 app.Run();

@@ -19,7 +19,7 @@ export const getCrops = async (username) => {
 
 export const deleteCrop = async (cropId) => {
   const response = await fetch(`${API_URL}/crops/${cropId}`, {
-    method: "DELETE",
+    method: "DELETE",   // I tried using DELETE in this project. 
     headers: {
       "Content-Type": "application/json",
     },
