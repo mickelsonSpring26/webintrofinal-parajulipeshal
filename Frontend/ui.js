@@ -1,17 +1,23 @@
 import { GetCurrentUser, SetCurrentUser } from "./domain.js";
-import { addCrop, getCrops, calculateGrowthStage, deleteCrop } from "./service.js";
+import {
+  addCrop,
+  getCrops,
+  calculateGrowthStage,
+  deleteCrop,
+} from "./service.js";
 
-const setUserInQueryString = ()=>{
-    const user= GetCurrentUser();
-    const url= new URL(window.location)
-    url.searchParams.set("name", user);
-    history.pushState(null, '', url);
-}
-const loginUserFromQueryString= ()=>{
-    const url = new URL(window.location)
-    const currentUser= url.searchParams.get("name") || ""
-    SetCurrentUser(currentUser)
-}
+
+const setUserInQueryString = () => {
+  const user = GetCurrentUser();
+  const url = new URL(window.location);
+  url.searchParams.set("name", user);
+  history.pushState(null, "", url);
+};
+const loginUserFromQueryString = () => {
+  const url = new URL(window.location);
+  const currentUser = url.searchParams.get("name") || "";
+  SetCurrentUser(currentUser);
+};
 const renderForm = () => {
   const formElement = document.createElement("form");
   const nameLabelElement = document.createElement("label");
@@ -41,7 +47,7 @@ const renderContentPage = () => {
   const containerElement = document.getElementById("pageContentContainer");
   containerElement.replaceChildren();
 
- //this is heading part
+  //this is heading part
 
   const headingElement = document.createElement("h2");
   headingElement.textContent = username + "'s Dashboard";
@@ -60,7 +66,7 @@ const renderContentPage = () => {
   cropTypeSelectElement.name = "cropType";
   cropTypeSelectElement.required = true;
   const options = ["", "Wheat", "Rice", "Corn", "Barley", "Soybean", "Cotton"];
-  options.forEach(opt => {
+  options.forEach((opt) => {
     const optionElement = document.createElement("option");
     optionElement.value = opt;
     optionElement.textContent = opt || "Select a crop";
@@ -105,10 +111,35 @@ const renderContentPage = () => {
   formElement.appendChild(document.createElement("br"));
   formElement.appendChild(document.createElement("br"));
 
+  const wateringLabelElement = document.createElement("label");
+  wateringLabelElement.textContent = "Water every: ";
+  const wateringSelectElement = document.createElement("select");
+  wateringSelectElement.id="selection-day"
+  wateringSelectElement.name = "wateringFrequencyDays";
+  const wateringOptions = [
+    { value: "", label: "No reminder" },
+    { value: "1", label: "Every day" },
+    { value: "2", label: "Every 2 days" },
+    { value: "3", label: "Every 3 days" },
+    { value: "7", label: "Every week" },
+    { value: "14", label: "Every 2 weeks" },
+  ];
+  wateringOptions.forEach((option) => {
+    const optionElement = document.createElement("option");
+    optionElement.value = option.value;
+    optionElement.textContent = option.label;
+    wateringSelectElement.appendChild(optionElement);
+  });
+  wateringLabelElement.appendChild(wateringSelectElement);
+  formElement.appendChild(wateringLabelElement);
+  formElement.appendChild(document.createElement("br"));
+  formElement.appendChild(document.createElement("br"));
+
   const pictureLabelElement = document.createElement("label");
   pictureLabelElement.textContent = "Upload Picture: ";
   const pictureInputElement = document.createElement("input");
   pictureInputElement.type = "file";
+  pictureInputElement.id = "imageInput";
   pictureLabelElement.appendChild(pictureInputElement);
   formElement.appendChild(pictureLabelElement);
   formElement.appendChild(document.createElement("br"));
@@ -130,14 +161,28 @@ const renderContentPage = () => {
 
   formElement.addEventListener("submit", async (e) => {
     e.preventDefault();
+    const imageInput = document.getElementById("imageInput");
+    const imageData = imageInput.files[0];
+//convering img into base64 string
+    let imageDataUrl = "";
+    if (imageData) {
+      imageDataUrl = await new Promise((resolve) => {
+        const reader = new FileReader();
+        reader.onload = (event) => resolve(event.target.result);
+        reader.readAsDataURL(imageData);
+      });
+    }
+
     const cropData = {
       userName: username,
       cropType: cropTypeSelectElement.value,
       plantingDate: plantingDateInputElement.value,
       fieldLocation: fieldLocationInputElement.value,
-      quantity: quantityInputElement.value
+      quantity: quantityInputElement.value,
+      wateringFrequencyDays: wateringSelectElement.value,
+      picture: imageDataUrl,
     };
-    
+
     await addCrop(cropData);
     formElement.reset();
     displayCrops(username, containerElement);
@@ -160,15 +205,28 @@ const renderContentPage = () => {
   });
 };
 
-const displayCrops = async (username, containerElement) => {
 
-  const existingCropsDivElement = containerElement.querySelector("#cropsDisplay");
+const calculateWateringReminder = (crop) => {
+  const today = new Date();
+  const planted = new Date(crop.plantingDate);
+ const wateringSelectElement= document.getElementById("selection-day")
+ const wateringFrequencyDays= wateringSelectElement.value
+
+  const daysSincePlanting = Math.floor((today - planted) / 86400000); 
+  const daysLeft = wateringFrequencyDays - (daysSincePlanting % crop.wateringFrequencyDays);
+
+  return `Water in ${daysLeft} day(s)`;
+};
+
+const displayCrops = async (username, containerElement) => {
+  const existingCropsDivElement =
+    containerElement.querySelector("#cropsDisplay");
   if (existingCropsDivElement) {
     existingCropsDivElement.replaceChildren();
   }
 
   const crops = await getCrops(username);
-  
+
   if (crops.length > 0) {
     const cropsDivElement = document.createElement("div");
     cropsDivElement.id = "cropsDisplay";
@@ -181,21 +239,39 @@ const displayCrops = async (username, containerElement) => {
       const cropCardElement = document.createElement("div");
       cropCardElement.classList.add("crop-card");
 
+      if (crop.picture) {
+        const displayImageElement = document.createElement("img");
+        displayImageElement.src = crop.picture;
+        displayImageElement.width = 200;
+        displayImageElement.alt = `${crop.cropType} in ${crop.fieldLocation}`;
+        cropCardElement.appendChild(displayImageElement);
+      }
+
       const cropTypeTextElement = document.createElement("p");
       cropTypeTextElement.textContent = "Crop Type: " + crop.cropType;
       cropCardElement.appendChild(cropTypeTextElement);
 
       const plantingDateTextElement = document.createElement("p");
-      plantingDateTextElement.textContent = "Planting Date: " + crop.plantingDate;
+      plantingDateTextElement.textContent =
+        "Planting Date: " + crop.plantingDate;
       cropCardElement.appendChild(plantingDateTextElement);
 
       const fieldLocationTextElement = document.createElement("p");
-      fieldLocationTextElement.textContent = "Field Location: " + crop.fieldLocation;
+      fieldLocationTextElement.textContent =
+        "Field Location: " + crop.fieldLocation;
       cropCardElement.appendChild(fieldLocationTextElement);
 
       const quantityTextElement = document.createElement("p");
       quantityTextElement.textContent = "Quantity: " + crop.quantity;
       cropCardElement.appendChild(quantityTextElement);
+
+      const wateringReminder = calculateWateringReminder(crop);
+      if (wateringReminder) {
+        const wateringReminderTextElement = document.createElement("p");
+        wateringReminderTextElement.className = wateringReminder.statusClassName;
+        wateringReminderTextElement.textContent = wateringReminder.statusText;
+        cropCardElement.appendChild(wateringReminderTextElement);
+      }
 
       const growthStage = calculateGrowthStage(crop.plantingDate);
       const growthStageTextElement = document.createElement("p");
@@ -204,7 +280,8 @@ const displayCrops = async (username, containerElement) => {
       cropCardElement.appendChild(growthStageTextElement);
 
       const daysElapsedTextElement = document.createElement("p");
-      daysElapsedTextElement.textContent = "Days Since Planting: " + growthStage.daysElapsed;
+      daysElapsedTextElement.textContent =
+        "Days Since Planting: " + growthStage.daysElapsed;
       cropCardElement.appendChild(daysElapsedTextElement);
 
       const progressBarContainerElement = document.createElement("div");
@@ -216,11 +293,13 @@ const displayCrops = async (username, containerElement) => {
 
       progressBarContainerElement.appendChild(progressBarElement);
       cropCardElement.appendChild(progressBarContainerElement);
-
+      
       const progressPercentTextElement = document.createElement("p");
       progressPercentTextElement.classList.add("progress-percent-text");
-      progressPercentTextElement.textContent = "Progress: " + Math.round(growthStage.percentage) + "%";
+      progressPercentTextElement.textContent =
+        "Progress: " + Math.round(growthStage.percentage) + "%";
       cropCardElement.appendChild(progressPercentTextElement);
+
 
       const deleteButtonElement = document.createElement("button");
       deleteButtonElement.type = "button";
@@ -236,8 +315,6 @@ const displayCrops = async (username, containerElement) => {
     });
 
     containerElement.appendChild(cropsDivElement);
-  } else {
-    console.log("No crops found for user:", username);
   }
 };
 
