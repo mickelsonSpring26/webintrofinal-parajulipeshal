@@ -4,6 +4,7 @@ import {
   getCrops,
   calculateGrowthStage,
   deleteCrop,
+  getHourlyTemperatureForLocation,
 } from "./service.js";
 
 
@@ -96,6 +97,22 @@ const renderContentPage = () => {
   fieldLocationInputElement.required = true;
   fieldLocationLabelElement.appendChild(fieldLocationInputElement);
   formElement.appendChild(fieldLocationLabelElement);
+
+  const checkWeatherButtonElement = document.createElement("button");
+  checkWeatherButtonElement.type = "button";
+  checkWeatherButtonElement.textContent = "Weather";
+  formElement.appendChild(checkWeatherButtonElement);
+
+  const weatherResultTextElement = document.createElement("p");
+  formElement.appendChild(weatherResultTextElement);
+
+  checkWeatherButtonElement.addEventListener("click", async () => {
+    const locationName = fieldLocationInputElement.value.trim();
+    weatherResultTextElement.textContent = "Loading...";
+    const weather = await getHourlyTemperatureForLocation(locationName);
+    weatherResultTextElement.textContent = `${weather.locationName}: ${weather.firstHourTemperature}${weather.unit}`;
+  });
+
   formElement.appendChild(document.createElement("br"));
   formElement.appendChild(document.createElement("br"));
 
@@ -218,6 +235,122 @@ const calculateWateringReminder = (crop) => {
   return `Water in ${daysLeft} day(s)`;
 };
 
+const createCropCardElement = async (crop, username, containerElement) => {
+  const cropCardElement = document.createElement("div");
+  cropCardElement.classList.add("crop-card");
+
+  if (crop.picture) {
+    const displayImageElement = document.createElement("img");
+    displayImageElement.src = crop.picture;
+    displayImageElement.width = 200;
+    displayImageElement.alt = `${crop.cropType} in ${crop.fieldLocation}`;
+    cropCardElement.appendChild(displayImageElement);
+  }
+
+  const cropTypeTextElement = document.createElement("p");
+  cropTypeTextElement.textContent = "Crop Type: " + crop.cropType;
+  cropCardElement.appendChild(cropTypeTextElement);
+
+  const plantingDateTextElement = document.createElement("p");
+  plantingDateTextElement.textContent =
+    "Planting Date: " + crop.plantingDate;
+  cropCardElement.appendChild(plantingDateTextElement);
+
+  const fieldLocationTextElement = document.createElement("p");
+  fieldLocationTextElement.textContent =
+    "Field Location: " + crop.fieldLocation;
+  cropCardElement.appendChild(fieldLocationTextElement);
+
+  const quantityTextElement = document.createElement("p");
+  quantityTextElement.textContent = "Quantity: " + crop.quantity;
+  cropCardElement.appendChild(quantityTextElement);
+
+  const weatherDetailsElement = document.createElement("div");
+  weatherDetailsElement.classList.add("weather-details");
+
+  const weatherTitleElement = document.createElement("h4");
+  weatherTitleElement.textContent = "Weather";
+  weatherDetailsElement.appendChild(weatherTitleElement);
+
+  const weather = await getHourlyTemperatureForLocation(crop.fieldLocation);
+
+  const weatherLocationElement = document.createElement("p");
+  weatherLocationElement.textContent = "Location: " + weather.locationName;
+  weatherDetailsElement.appendChild(weatherLocationElement);
+
+  const weatherLatitudeElement = document.createElement("p");
+  weatherLatitudeElement.textContent = "Latitude: " + weather.latitude;
+  weatherDetailsElement.appendChild(weatherLatitudeElement);
+
+  const weatherLongitudeElement = document.createElement("p");
+  weatherLongitudeElement.textContent = "Longitude: " + weather.longitude;
+  weatherDetailsElement.appendChild(weatherLongitudeElement);
+
+  const weatherTimezoneElement = document.createElement("p");
+  weatherTimezoneElement.textContent = "Timezone: " + weather.timezone;
+  weatherDetailsElement.appendChild(weatherTimezoneElement);
+
+  const weatherElevationElement = document.createElement("p");
+  weatherElevationElement.textContent = "Elevation: " + weather.elevation + " m";
+  weatherDetailsElement.appendChild(weatherElevationElement);
+
+  const weatherTimeElement = document.createElement("p");
+  weatherTimeElement.textContent = "Time: " + weather.firstHourTime;
+  weatherDetailsElement.appendChild(weatherTimeElement);
+
+  const weatherTemperatureElement = document.createElement("p");
+  weatherTemperatureElement.textContent = "Temperature: " + weather.firstHourTemperature + weather.unit;
+  weatherDetailsElement.appendChild(weatherTemperatureElement);
+
+  cropCardElement.appendChild(weatherDetailsElement);
+
+  const wateringReminder = calculateWateringReminder(crop);
+  if (wateringReminder) {
+    const wateringReminderTextElement = document.createElement("p");
+    wateringReminderTextElement.textContent = wateringReminder;
+    cropCardElement.appendChild(wateringReminderTextElement);
+  }
+
+  const growthStage = calculateGrowthStage(crop.plantingDate);
+  const growthStageTextElement = document.createElement("p");
+  growthStageTextElement.classList.add("growth-stage-text");
+  growthStageTextElement.textContent = "Growth Stage: " + growthStage.stage;
+  cropCardElement.appendChild(growthStageTextElement);
+
+  const daysElapsedTextElement = document.createElement("p");
+  daysElapsedTextElement.textContent =
+    "Days Since Planting: " + growthStage.daysElapsed;
+  cropCardElement.appendChild(daysElapsedTextElement);
+
+  const progressBarContainerElement = document.createElement("div");
+  progressBarContainerElement.classList.add("progress-bar-container");
+
+  const progressBarElement = document.createElement("div");
+  progressBarElement.classList.add("progress-bar");
+  progressBarElement.style.width = growthStage.percentage + "%";
+
+  progressBarContainerElement.appendChild(progressBarElement);
+  cropCardElement.appendChild(progressBarContainerElement);
+
+  const progressPercentTextElement = document.createElement("p");
+  progressPercentTextElement.classList.add("progress-percent-text");
+  progressPercentTextElement.textContent =
+    "Progress: " + Math.round(growthStage.percentage) + "%";
+  cropCardElement.appendChild(progressPercentTextElement);
+
+  const deleteButtonElement = document.createElement("button");
+  deleteButtonElement.type = "button";
+  deleteButtonElement.textContent = "Delete";
+  deleteButtonElement.classList.add("delete-button");
+  deleteButtonElement.addEventListener("click", async () => {
+    await deleteCrop(crop.id);
+    displayCrops(username, containerElement);
+  });
+  cropCardElement.appendChild(deleteButtonElement);
+
+  return cropCardElement;
+};
+
 const displayCrops = async (username, containerElement) => {
   const existingCropsDivElement =
     containerElement.querySelector("#cropsDisplay");
@@ -225,97 +358,53 @@ const displayCrops = async (username, containerElement) => {
     existingCropsDivElement.replaceChildren();
   }
 
-  const crops = await getCrops(username);
+  const cropsDivElement = document.createElement("div");
+  cropsDivElement.id = "cropsDisplay";
 
-  if (crops.length > 0) {
-    const cropsDivElement = document.createElement("div");
-    cropsDivElement.id = "cropsDisplay";
+  const cropsTitleElement = document.createElement("h3");
+  cropsTitleElement.textContent = "Your Crops";
+  cropsDivElement.appendChild(cropsTitleElement);
 
-    const cropsTitleElement = document.createElement("h3");
-    cropsTitleElement.textContent = "Your Crops";
-    cropsDivElement.appendChild(cropsTitleElement);
+  const filtersContainerElement = document.createElement("div");
+  filtersContainerElement.classList.add("filters-container");
 
-    crops.forEach((crop) => {
-      const cropCardElement = document.createElement("div");
-      cropCardElement.classList.add("crop-card");
+  const filterCropNameInputElement = document.createElement("input");
+  filterCropNameInputElement.type = "text";
+  filterCropNameInputElement.placeholder = "Crop name";
+  filtersContainerElement.appendChild(filterCropNameInputElement);
 
-      if (crop.picture) {
-        const displayImageElement = document.createElement("img");
-        displayImageElement.src = crop.picture;
-        displayImageElement.width = 200;
-        displayImageElement.alt = `${crop.cropType} in ${crop.fieldLocation}`;
-        cropCardElement.appendChild(displayImageElement);
-      }
+  const filterQuantityInputElement = document.createElement("input");
+  filterQuantityInputElement.type = "number";
+  filterQuantityInputElement.placeholder = "Min quantity";
+  filterQuantityInputElement.min = "1";
+  filtersContainerElement.appendChild(filterQuantityInputElement);
 
-      const cropTypeTextElement = document.createElement("p");
-      cropTypeTextElement.textContent = "Crop Type: " + crop.cropType;
-      cropCardElement.appendChild(cropTypeTextElement);
+  cropsDivElement.appendChild(filtersContainerElement);
 
-      const plantingDateTextElement = document.createElement("p");
-      plantingDateTextElement.textContent =
-        "Planting Date: " + crop.plantingDate;
-      cropCardElement.appendChild(plantingDateTextElement);
+  const cardsContainerElement = document.createElement("div");
+  cardsContainerElement.classList.add("cards-container");
+  cropsDivElement.appendChild(cardsContainerElement);
 
-      const fieldLocationTextElement = document.createElement("p");
-      fieldLocationTextElement.textContent =
-        "Field Location: " + crop.fieldLocation;
-      cropCardElement.appendChild(fieldLocationTextElement);
+  containerElement.appendChild(cropsDivElement);
 
-      const quantityTextElement = document.createElement("p");
-      quantityTextElement.textContent = "Quantity: " + crop.quantity;
-      cropCardElement.appendChild(quantityTextElement);
+  const renderCards = async () => {
+    cardsContainerElement.replaceChildren();
 
-      const wateringReminder = calculateWateringReminder(crop);
-      if (wateringReminder) {
-        const wateringReminderTextElement = document.createElement("p");
-        wateringReminderTextElement.className = wateringReminder.statusClassName;
-        wateringReminderTextElement.textContent = wateringReminder.statusText;
-        cropCardElement.appendChild(wateringReminderTextElement);
-      }
-
-      const growthStage = calculateGrowthStage(crop.plantingDate);
-      const growthStageTextElement = document.createElement("p");
-      growthStageTextElement.classList.add("growth-stage-text");
-      growthStageTextElement.textContent = "Growth Stage: " + growthStage.stage;
-      cropCardElement.appendChild(growthStageTextElement);
-
-      const daysElapsedTextElement = document.createElement("p");
-      daysElapsedTextElement.textContent =
-        "Days Since Planting: " + growthStage.daysElapsed;
-      cropCardElement.appendChild(daysElapsedTextElement);
-
-      const progressBarContainerElement = document.createElement("div");
-      progressBarContainerElement.classList.add("progress-bar-container");
-
-      const progressBarElement = document.createElement("div");
-      progressBarElement.classList.add("progress-bar");
-      progressBarElement.style.width = growthStage.percentage + "%";
-
-      progressBarContainerElement.appendChild(progressBarElement);
-      cropCardElement.appendChild(progressBarContainerElement);
-      
-      const progressPercentTextElement = document.createElement("p");
-      progressPercentTextElement.classList.add("progress-percent-text");
-      progressPercentTextElement.textContent =
-        "Progress: " + Math.round(growthStage.percentage) + "%";
-      cropCardElement.appendChild(progressPercentTextElement);
-
-
-      const deleteButtonElement = document.createElement("button");
-      deleteButtonElement.type = "button";
-      deleteButtonElement.textContent = "Delete";
-      deleteButtonElement.classList.add("delete-button");
-      deleteButtonElement.addEventListener("click", async () => {
-        await deleteCrop(crop.id);
-        displayCrops(username, containerElement);
-      });
-      cropCardElement.appendChild(deleteButtonElement);
-
-      cropsDivElement.appendChild(cropCardElement);
+    const crops = await getCrops(username, {
+      cropName: filterCropNameInputElement.value,
+      quantity: filterQuantityInputElement.value,
     });
 
-    containerElement.appendChild(cropsDivElement);
-  }
+    for (const crop of crops) {
+      const cropCardElement = await createCropCardElement(crop, username, containerElement);
+      cardsContainerElement.appendChild(cropCardElement);
+    }
+  };
+
+  filterCropNameInputElement.addEventListener("input", renderCards);
+  filterQuantityInputElement.addEventListener("input", renderCards);
+
+  await renderCards();
 };
 
 const renderWholePage = () => {

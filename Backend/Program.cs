@@ -46,6 +46,23 @@ app.MapGet("/crops/{userName}", (string userName) =>
 {
     return Results.Ok(crops.Where(c => c.UserName == userName).ToList());
 });
+app.MapGet("/crops/{userName}/filter", (string userName, string cropName, string quantity) =>
+{
+    var query = crops.Where(c => c.UserName == userName);
+
+    query = query.Where(c => c.CropType.Contains(cropName, StringComparison.OrdinalIgnoreCase));
+
+    if (int.TryParse(quantity, out var quantityValue))
+    {
+        query = query.Where(c => int.TryParse(c.Quantity, out var cropQuantity) && cropQuantity >= quantityValue);
+    }
+    else
+    {
+        query = query.Where(c => c.Quantity.Contains(quantity, StringComparison.OrdinalIgnoreCase));
+    }
+
+    return Results.Ok(query.ToList());
+});
 
 app.MapDelete("/crops/{id}", (int id) =>
 {  //I found that we use MapDelete to accept the delete request from out service.js file
