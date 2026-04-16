@@ -14,14 +14,32 @@
     <title>Smart Forcaster</title>
   </head>
   <body>
-    <div>
+    <div class="whole-container">
       <div class="navbar">
         <div class="logo-container"><h3 class="logo">Smart Forcaster</h3></div>
-        <div class="navbar-right"><img src="./assets/user1.png" alt="usericon"></div>
+        <div class="navbar-right">
+          <img src="./assets/user1.png" alt="usericon" />
+        </div>
       </div>
-    </div>
-    <div class="main-container">
-      <section id="pageContentContainer"></section>
+      <div>
+      </div>
+      <div class="main-container">
+        <section id="loginPage" class="login-div">
+          <h2>Login Form</h2>
+          <hr>
+          <br>
+          <form id="loginForm">
+            <label for="nameInput"><h3 class="username-label">What is your name?</h3></label>
+            <br>
+            <input type="text" name="name" id="nameInput" required /><br>
+            <button type="submit">Login</button>
+          </form>
+          <span class="login-warn">Please enter your name correctly!</span>
+        </section>
+      </div>
+      <footer class="footer">
+        <span>Smart Forcaster | Made for Farmers</span>
+      </footer>
     </div>
   </body>
 </html>
