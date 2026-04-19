@@ -2,7 +2,7 @@ const API_URL = "http://localhost:5144";
 const METRO_API_COORDINATE = "https://geocoding-api.open-meteo.com/v1/search";
 const OPEN_METEO_FORECAST = "https://api.open-meteo.com/v1/forecast";
 
-export const addCrop = async (cropData) => {
+export const AddCrop = async (cropData) => {
   const response = await fetch(`${API_URL}/crops`, {
     method: "POST",
     headers: {
@@ -13,7 +13,7 @@ export const addCrop = async (cropData) => {
   return response.json();
 };
 
-export const getCrops = async (username, filters = {}) => {
+export const GetCrops = async (username, filters = {}) => {
   const cropName = (filters.cropName || "").trim();
   const quantity = (filters.quantity || "").toString().trim();
 
@@ -28,7 +28,7 @@ export const getCrops = async (username, filters = {}) => {
   return crops;
 };
 
-export const deleteCrop = async (cropId) => {
+export const DeleteCrop = async (cropId) => {
   const response = await fetch(`${API_URL}/crops/${cropId}`, {
     method: "DELETE",   // I tried using DELETE in this project. 
     headers: {
@@ -38,7 +38,7 @@ export const deleteCrop = async (cropId) => {
   return response.json();
 };
 
-export const getCoordinatesForLocation = async (locationName) => {
+export const GetCoordinatesForLocation = async (locationName) => {
   const query = new URLSearchParams({
     name: locationName,
     count: "10",
@@ -66,8 +66,8 @@ export const getCoordinatesForLocation = async (locationName) => {
   };
 };
 
-export const getHourlyTemperatureForLocation = async (locationName) => {
-  const location = await getCoordinatesForLocation(locationName);
+export const GetHourlyTemperatureForLocation = async (locationName) => {
+  const location = await GetCoordinatesForLocation(locationName);
 
   const query = new URLSearchParams({
     latitude: String(location.latitude),
@@ -94,8 +94,7 @@ export const getHourlyTemperatureForLocation = async (locationName) => {
   };
 };
 
-//I will replace this with api thing later on. This is just for mvp.
-export const calculateGrowthStage = (plantingDate) => {
+export const CalculateGrowthStage = (plantingDate) => {
   const planted = new Date(plantingDate);
   const today = new Date();
   const daysSincePlanting = Math.floor((today - planted) / (1000 * 60 * 60 * 24));

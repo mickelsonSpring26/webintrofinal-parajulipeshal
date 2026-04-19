@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <link rel="stylesheet" href="style.css" />
+    <link rel="stylesheet" href="dashboard.css" />
     <script type="module" src="ui.js"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -15,91 +15,64 @@
   </head>
   <body>
     <div class="whole-container">
-    <nav>
-      <div class="navbar">
-        <div class="logo-container"><h3 class="logo">Smart Forcaster</h3></div>
-        <div class="navbar-right">
-          <img src="./assets/user1.png" alt="usericon" />
+      <nav>
+        <div class="navbar">
+          <div class="logo-container">
+            <h3 class="logo">Smart Forcaster</h3>
+          </div>
+          <div class="navbar-right">
+            <img src="./assets/user1.png" alt="usericon" />
+          </div>
+        </div>
+      </nav>
+
+      <div class="main-container" id="dashboardPage">
+        <div class="buttoned-title">
+          <h1 id="dashboardTitle"></h1>
+          <div class="user-button">
+          <button id="addCrop">Add Crop</button>
+          <button id="logoutButton">Logout</button>
+          </div>
+        </div>
+        <div class="dashboard-bottom">
+        <div id="cropsDisplay">
+          <h3>Your Crops</h3>
+          <div class="filters-container">
+            <input id="filterCropName" type="text" placeholder="Crop name" />
+            <input
+              id="filterQuantity"
+              type="number"
+              placeholder="Min quantity"
+              min="1"
+            />
+          </div>
+          <div id="cardsContainer" class="cards-container"></div>
         </div>
       </div>
-    </nav>
-
-    <div class="main-container" id="dashboardPage">
-      <h2 id="dashboardTitle"></h2>
-
-      <h3>Add a Crop</h3>
-      <form id="addCropForm">
-        <label for="cropType">Crop Type: </label>
-        <select id="cropType" name="cropType" required>
-          <option value="">Select a crop</option>
-          <option value="Wheat">Wheat</option>
-          <option value="Rice">Rice</option>
-          <option value="Corn">Corn</option>
-          <option value="Barley">Barley</option>
-          <option value="Soybean">Soybean</option>
-          <option value="Cotton">Cotton</option>
-        </select>
-        <br />
-        <br />
-
-        <label for="plantingDate">Planting Date: </label>
-        <input id="plantingDate" type="date" name="plantingDate" required />
-        <br />
-        <br />
-
-        <label for="fieldLocation">Field Location: </label>
-        <input id="fieldLocation" type="text" name="fieldLocation" required />
-        <button id="checkWeatherButton" type="button">Weather</button>
-        <p id="weatherResult"></p>
-        <br />
-
-        <label for="quantity">Quantity: </label>
-        <input id="quantity" type="number" name="quantity" min="1" required />
-        <br />
-        <br />
-
-        <label for="selection-day">Water every: </label>
-        <select id="selection-day" name="wateringFrequencyDays">
-          <option value="">No reminder</option>
-          <option value="1">Every day</option>
-          <option value="2">Every 2 days</option>
-          <option value="3">Every 3 days</option>
-          <option value="7">Every week</option>
-          <option value="14">Every 2 weeks</option>
-        </select>
-        <br />
-        <br />
-
-        <label for="imageInput">Upload Picture: </label>
-        <input id="imageInput" type="file" />
-        <br />
-        <br />
-
-        <button type="submit">Add Crop</button>
-        <button type="reset" class="reset-button">Reset</button>
-      </form>
-
-      <div id="cropsDisplay">
-        <h3>Your Crops</h3>
-        <div class="filters-container">
-          <input id="filterCropName" type="text" placeholder="Crop name" />
-          <input
-            id="filterQuantity"
-            type="number"
-            placeholder="Min quantity"
-            min="1"
-          />
-        </div>
-        <div id="cardsContainer" class="cards-container"></div>
       </div>
 
-      <br />
-      <br />
-      <button id="logoutButton" type="button">Logout</button>
-    </div>
-    <footer class="footer">
-      <span>Smart Forcaster | Made for Farmers</span>
-    </footer>
+      <div id="popup-form" class="popup-form">
+        <div class="form">
+         <div class="closer"> <button class="close-button"><img src="./assets/close.png" alt="close" class="form-close"></button></div>
+          <h2>Add New Crop</h2>
+          <form id="addCropForm">
+            <label>Crop Type: <input type="text" id="cropType" name="cropType" required /></label>
+            <label>Planting date: <input type="date" id="plantingDate" name="plantingDate" required /></label>
+            <label>Field Location: <input type="text" id="fieldLocation" name="fieldLocation" placeholder="Field Location" required /></label>
+            <label>Quantity: <input type="number" id="quantity" name="quantity" placeholder="Quantity" required /></label>
+            <label>Watering Frequency (Days): <input type="number" id="wateringFrequencyDays" name="wateringFrequencyDays" placeholder="Watering Frequency (Days)" /></label>
+            <label >Picture: <input type="file" id="imageInput"/></label>
+            <div class="form-buttons">
+              <button type="submit">Add Crop</button>
+              <button type="reset">Reset</button>
+            </div>
+          </form>
+        </div>
+      </div>
+      <span id="null-check"></span>
+      <footer class="footer">
+        <span>Smart Forcaster | Made for Farmers</span>
+      </footer>
     </div>
   </body>
 </html>

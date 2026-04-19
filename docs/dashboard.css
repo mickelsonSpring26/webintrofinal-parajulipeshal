@@ -1,0 +1,288 @@
+:root {
+  --primary-color: #346739;
+  --bar-color: #2ecc71;
+  --reset: #ff4444;
+  --hoveredReset: #cc0000;
+  --dark-white: #d9d9d9;
+  --lighterDark-white: rgb(238, 225, 225);
+  --progressBarColor: #e0e0e0;
+}
+
+body {
+  font-family: Poppins, sans-serif;
+  margin: 0;
+  padding: 0;
+}
+.navbar {
+  width: 100vw;
+  height: 68px;
+  background-color: var(--primary-color);
+  display: flex;
+  justify-content: space-between;
+  position: fixed;
+  top: 0;
+}
+.logo {
+  margin: 0;
+  padding: 0;
+  color: var(--lighterDark-white);
+}
+.logo-container {
+  padding: px;
+  font-size: large;
+  width: 13%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.navbar-right {
+  display: flex;
+  margin-left: auto;
+  padding: 20px;
+  align-items: center;
+}
+
+.crop-card {
+  border: 1px solid #d9d9d9;
+  padding: 14px;
+  margin-bottom: 14px;
+  border-radius: 8px;
+  background: #fff;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.08);
+  max-width: 520px;
+}
+
+.crop-card p {
+  margin: 6px 0;
+}
+
+.crop-card img {
+  border-radius: 6px;
+  margin-bottom: 8px;
+}
+
+.filters-container {
+  display: flex;
+  gap: 8px;
+  margin: 10px 0 14px;
+  flex-wrap: wrap;
+}
+
+.filters-container input,
+.filters-container select,
+.filters-container button {
+  padding: 8px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  font-size: 14px;
+}
+
+.cards-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.growth-stage-text {
+  font-weight: bold;
+  color: var(--primary-color);
+  opacity: 0.9;
+}
+
+.progress-bar-container {
+  width: 100%;
+  height: 20px;
+  background-color: var(--progressBarColor);
+  border-radius: 10px;
+  overflow: hidden;
+  margin-top: 8px;
+  display: flex;
+}
+
+.progress-bar {
+  height: 100%;
+  background-color: var(--primary-color);
+}
+
+.delete-button {
+  background-color: var(--reset);
+  color: white;
+  padding: 6px 12px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-weight: 500;
+  font-size: 12px;
+  margin-top: 5px;
+}
+
+.delete-button:hover {
+  background-color: var(--hoveredReset);
+}
+
+
+.footer {
+  width: 100vw;
+  height: 50px;
+  background-color: var(--primary-color);
+  color: var(--dark-white);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  position: fixed;
+  bottom: 0;
+}
+
+.main-container{
+margin: 0;
+padding: 10px;
+margin-top: 65px;
+margin-bottom: 65px;
+display: flex;
+flex-direction: column;
+}
+
+#dashboardTitle
+{
+    color: var(--primary-color);
+}
+.buttoned-title
+{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+}
+.user-button{
+margin-left: auto;
+display: flex;
+width: 150px;
+justify-content: space-between;
+}
+.user-button button{
+    background-color: var(--primary-color);
+    padding: 10px;
+    color: var(--lighterDark-white);
+    border-radius: 5px;
+}
+
+.dashboard-bottom
+{
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
+.form-close{
+  width: 25px;
+  margin-left: auto;
+}
+.closer{
+  width: 25%;
+  margin-left: auto;
+  display: flex;
+}
+.close-button
+{
+  margin-left: auto;
+  border: none;
+  background: none;
+}
+
+.popup-form {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 100;
+  justify-content: center;
+  align-items: center;
+}
+
+.popup-form.active {
+  display: flex;
+}
+
+.form {
+  background: white;
+  padding: 30px;
+  border-radius: 8px;
+  width: 400px;
+  position: relative;
+}
+
+.form h2 {
+  margin: 0 0 20px 0;
+  color: var(--primary-color);
+}
+
+#addCropForm {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.form-buttons {
+  display: flex;
+  gap: 10px;
+}
+.form-buttons button{
+  flex: 1;
+}
+
+#addCropForm label {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  font-size: 14px;
+}
+
+#addCropForm input {
+  padding: 8px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+
+#checkWeatherButton,
+#addCropForm button[type="submit"] {
+  padding: 10px;
+  background-color: var(--primary-color);
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-weight: 500;
+}
+
+#checkWeatherButton:hover,
+#addCropForm button[type="submit"]:hover {
+  background-color: #2a5230;
+}
+
+#weatherResult {
+  font-size: 12px;
+  color: #666;
+  min-height: 15px;
+}
+.crop-heading{
+  color: var(--primary-color);
+  margin: 0;
+  padding: 0;
+}
+.crop-location
+{
+  font-size: small;
+  color: var(--primary-color);
+  opacity: 0.8;
+}
+
+.progress-percent-text
+{
+  margin-left: auto;
+  margin-right: 4px;
+  font-size: smaller;
+  padding: 2px;
+}

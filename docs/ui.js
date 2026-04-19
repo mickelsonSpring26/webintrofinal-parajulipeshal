@@ -1,11 +1,13 @@
 import { GetCurrentUser, SetCurrentUser } from "./domain.js";
 import {
-  addCrop,
-  getCrops,
-  calculateGrowthStage,
-  deleteCrop,
-  getHourlyTemperatureForLocation,
+  AddCrop,
+  GetCrops,
+  CalculateGrowthStage,
+  DeleteCrop,
+  GetHourlyTemperatureForLocation,
 } from "./service.js";
+
+let draggedCard = null;
 
 const calculateWateringReminder = (crop) => {
   const frequency = Number(crop.wateringFrequencyDays);
@@ -25,71 +27,37 @@ const calculateWateringReminder = (crop) => {
 const createCropCardElement = async (crop, onDeleteSuccess) => {
   const cropCardElement = document.createElement("div");
   cropCardElement.classList.add("crop-card");
+  cropCardElement.draggable = true;
 
-  if (crop.picture) {
     const displayImageElement = document.createElement("img");
     displayImageElement.src = crop.picture;
-    displayImageElement.width = 200;
-    displayImageElement.alt = `${crop.cropType} in ${crop.fieldLocation}`;
+    displayImageElement.width = 250;
+    displayImageElement.alt = "crop-image";
     cropCardElement.appendChild(displayImageElement);
-  }
 
-  const cropTypeTextElement = document.createElement("p");
-  cropTypeTextElement.textContent = "Crop Type: " + crop.cropType;
+  const cropTypeTextElement = document.createElement("h2");
+  cropTypeTextElement.textContent = crop.cropType;
+  cropTypeTextElement.classList.add("crop-heading")
   cropCardElement.appendChild(cropTypeTextElement);
 
-  const plantingDateTextElement = document.createElement("p");
-  plantingDateTextElement.textContent =
-    "Planting Date: " + crop.plantingDate;
-  cropCardElement.appendChild(plantingDateTextElement);
-
-  const fieldLocationTextElement = document.createElement("p");
-  fieldLocationTextElement.textContent =
-    "Field Location: " + crop.fieldLocation;
+    const fieldLocationTextElement = document.createElement("span");
+  fieldLocationTextElement.textContent = crop.fieldLocation + ` (${crop.plantingDate})`;
+  fieldLocationTextElement.classList.add("crop-location")
   cropCardElement.appendChild(fieldLocationTextElement);
 
   const quantityTextElement = document.createElement("p");
   quantityTextElement.textContent = "Quantity: " + crop.quantity;
   cropCardElement.appendChild(quantityTextElement);
 
-  const weatherDetailsElement = document.createElement("div");
-  weatherDetailsElement.classList.add("weather-details");
-
-  const weatherTitleElement = document.createElement("h4");
-  weatherTitleElement.textContent = "Weather";
-  weatherDetailsElement.appendChild(weatherTitleElement);
-
-  const weather = await getHourlyTemperatureForLocation(crop.fieldLocation);
-
-  const weatherLocationElement = document.createElement("p");
-  weatherLocationElement.textContent = "Location: " + weather.locationName;
-  weatherDetailsElement.appendChild(weatherLocationElement);
-
-  const weatherLatitudeElement = document.createElement("p");
-  weatherLatitudeElement.textContent = "Latitude: " + weather.latitude;
-  weatherDetailsElement.appendChild(weatherLatitudeElement);
-
-  const weatherLongitudeElement = document.createElement("p");
-  weatherLongitudeElement.textContent = "Longitude: " + weather.longitude;
-  weatherDetailsElement.appendChild(weatherLongitudeElement);
-
-  const weatherTimezoneElement = document.createElement("p");
-  weatherTimezoneElement.textContent = "Timezone: " + weather.timezone;
-  weatherDetailsElement.appendChild(weatherTimezoneElement);
+  const weather = await GetHourlyTemperatureForLocation(crop.fieldLocation);
 
   const weatherElevationElement = document.createElement("p");
   weatherElevationElement.textContent = "Elevation: " + weather.elevation + " m";
-  weatherDetailsElement.appendChild(weatherElevationElement);
-
-  const weatherTimeElement = document.createElement("p");
-  weatherTimeElement.textContent = "Time: " + weather.firstHourTime;
-  weatherDetailsElement.appendChild(weatherTimeElement);
+  cropCardElement.appendChild(weatherElevationElement);
 
   const weatherTemperatureElement = document.createElement("p");
   weatherTemperatureElement.textContent = "Temperature: " + weather.firstHourTemperature + weather.unit;
-  weatherDetailsElement.appendChild(weatherTemperatureElement);
-
-  cropCardElement.appendChild(weatherDetailsElement);
+  cropCardElement.appendChild(weatherTemperatureElement);
 
   const wateringReminder = calculateWateringReminder(crop);
   if (wateringReminder) {
@@ -98,10 +66,10 @@ const createCropCardElement = async (crop, onDeleteSuccess) => {
     cropCardElement.appendChild(wateringReminderTextElement);
   }
 
-  const growthStage = calculateGrowthStage(crop.plantingDate);
+  const growthStage = CalculateGrowthStage(crop.plantingDate);
   const growthStageTextElement = document.createElement("p");
   growthStageTextElement.classList.add("growth-stage-text");
-  growthStageTextElement.textContent = "Growth Stage: " + growthStage.stage;
+  growthStageTextElement.textContent = growthStage.stage + " stage";
   cropCardElement.appendChild(growthStageTextElement);
 
   const daysElapsedTextElement = document.createElement("p");
@@ -115,25 +83,47 @@ const createCropCardElement = async (crop, onDeleteSuccess) => {
   const progressBarElement = document.createElement("div");
   progressBarElement.classList.add("progress-bar");
   progressBarElement.style.width = growthStage.percentage + "%";
-
+  
   progressBarContainerElement.appendChild(progressBarElement);
-  cropCardElement.appendChild(progressBarContainerElement);
-
-  const progressPercentTextElement = document.createElement("p");
+  
+  const progressPercentTextElement = document.createElement("span");
   progressPercentTextElement.classList.add("progress-percent-text");
-  progressPercentTextElement.textContent =
-    "Progress: " + Math.round(growthStage.percentage) + "%";
-  cropCardElement.appendChild(progressPercentTextElement);
+  progressPercentTextElement.textContent = Math.round(growthStage.percentage) + "%";
+  progressBarContainerElement.appendChild(progressPercentTextElement);
+
+  cropCardElement.appendChild(progressBarContainerElement);
 
   const deleteButtonElement = document.createElement("button");
   deleteButtonElement.type = "button";
   deleteButtonElement.textContent = "Delete";
   deleteButtonElement.classList.add("delete-button");
   deleteButtonElement.addEventListener("click", async () => {
-    await deleteCrop(crop.id);
+    await DeleteCrop(crop.id);
     await onDeleteSuccess();
   });
   cropCardElement.appendChild(deleteButtonElement);
+
+  cropCardElement.addEventListener("dragstart", (e) => {
+    draggedCard = cropCardElement;
+    cropCardElement.classList.add("dragging");
+  });
+
+  cropCardElement.addEventListener("dragend", (e) => {
+    cropCardElement.classList.remove("dragging");
+    draggedCard = null;
+  });
+
+  cropCardElement.addEventListener("dragover", (e) => {
+    e.preventDefault();
+    e.dataTransfer.dropEffect = "move";
+    if (draggedCard && draggedCard !== cropCardElement) {
+      cropCardElement.parentElement.insertBefore(draggedCard, cropCardElement);
+    }
+  });
+
+  cropCardElement.addEventListener("drop", (e) => {
+    e.preventDefault();
+  });
 
   return cropCardElement;
 };
@@ -147,7 +137,7 @@ const displayCrops = async (
   const renderCards = async () => {
     cardsContainerElement.replaceChildren();
 
-    const crops = await getCrops(username, {
+    const crops = await GetCrops(username, {
       cropName: filterCropNameInputElement.value,
       quantity: filterQuantityInputElement.value,
     });
@@ -172,6 +162,7 @@ const getUserFromQueryString = () => {
 const initLoginPage = () => {
   const loginFormElement = document.getElementById("loginForm");
   const nameInputElement = document.getElementById("nameInput");
+
   if (!loginFormElement || !nameInputElement) {
     return;
   }
@@ -185,10 +176,6 @@ const initLoginPage = () => {
   loginFormElement.addEventListener("submit", (e) => {
     e.preventDefault();
     const name = nameInputElement.value.trim();
-    if (!name) {
-      return;
-    }
-
     SetCurrentUser(name);
     window.location.href = `dashboard.html?name=${encodeURIComponent(name)}`;
   });
@@ -196,40 +183,28 @@ const initLoginPage = () => {
 
 const initDashboardPage = async () => {
   const dashboardPageElement = document.getElementById("dashboardPage");
-  if (!dashboardPageElement) {
-    return;
-  }
-
   const username = getUserFromQueryString();
-  if (!username) {
-    window.location.href = "index.html";
-    return;
-  }
   SetCurrentUser(username);
 
   const dashboardTitleElement = document.getElementById("dashboardTitle");
   const addCropFormElement = document.getElementById("addCropForm");
-  const fieldLocationInputElement = document.getElementById("fieldLocation");
-  const checkWeatherButtonElement = document.getElementById("checkWeatherButton");
-  const weatherResultTextElement = document.getElementById("weatherResult");
   const imageInputElement = document.getElementById("imageInput");
   const cardsContainerElement = document.getElementById("cardsContainer");
   const filterCropNameInputElement = document.getElementById("filterCropName");
   const filterQuantityInputElement = document.getElementById("filterQuantity");
   const logoutButtonElement = document.getElementById("logoutButton");
+  const addCropButtonElement = document.getElementById("addCrop");
+  const addCropModalElement = document.getElementById("popup-form");
+  const closeButtonElement = document.querySelector(".close-button");
 
-  dashboardTitleElement.textContent = `${username}'s Dashboard`;
+  dashboardTitleElement.textContent = `Welcome ${username}!`;
 
-  checkWeatherButtonElement.addEventListener("click", async () => {
-    const locationName = fieldLocationInputElement.value.trim();
-    if (!locationName) {
-      weatherResultTextElement.textContent = "Enter a location first.";
-      return;
-    }
+  addCropButtonElement.addEventListener("click", () => {
+    addCropModalElement.classList.add("active");
+  });
 
-    weatherResultTextElement.textContent = "Loading...";
-    const weather = await getHourlyTemperatureForLocation(locationName);
-    weatherResultTextElement.textContent = `${weather.locationName}: ${weather.firstHourTemperature}${weather.unit}`;
+  closeButtonElement.addEventListener("click", () => {
+    addCropModalElement.classList.remove("active");
   });
 
   addCropFormElement.addEventListener("submit", async (e) => {
@@ -257,8 +232,9 @@ const initDashboardPage = async () => {
       picture: imageDataUrl,
     };
 
-    await addCrop(cropData);
+    await AddCrop(cropData);
     addCropFormElement.reset();
+    addCropModalElement.classList.remove("active");
     await displayCrops(
       username,
       cardsContainerElement,
@@ -280,5 +256,11 @@ const initDashboardPage = async () => {
   );
 };
 
-initLoginPage();
-initDashboardPage();
+if (document.getElementById("loginForm")) {
+  initLoginPage();
+}
+
+if (document.getElementById("dashboardPage")) {
+  initDashboardPage();
+}
+
