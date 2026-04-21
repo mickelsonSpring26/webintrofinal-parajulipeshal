@@ -1,9 +1,10 @@
-const API_URL = "http://localhost:5144";
+// const API_URL = "http://localhost:5144";
+const BASE_URL = "https://webintrofinal-parajulipeshal.onrender.com/";
 const METRO_API_COORDINATE = "https://geocoding-api.open-meteo.com/v1/search";
 const OPEN_METEO_FORECAST = "https://api.open-meteo.com/v1/forecast";
 
 export const AddCrop = async (cropData) => {
-  const response = await fetch(`${API_URL}/crops`, {
+  const response = await fetch(`${BASE_URL}/crops`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -21,7 +22,7 @@ export const GetCrops = async (username, filters = {}) => {
     cropName,
     quantity,
   });
-  const endpoint = `${API_URL}/crops/${username}/filter?${query.toString()}`;
+  const endpoint = `${BASE_URL}/crops/${username}/filter?${query.toString()}`;
 
   const response = await fetch(endpoint);
   const crops = await response.json();
@@ -29,7 +30,7 @@ export const GetCrops = async (username, filters = {}) => {
 };
 
 export const DeleteCrop = async (cropId) => {
-  const response = await fetch(`${API_URL}/crops/${cropId}`, {
+  const response = await fetch(`${BASE_URL}/crops/${cropId}`, {
     method: "DELETE",   // I tried using DELETE in this project. 
     headers: {
       "Content-Type": "application/json",
