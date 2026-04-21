@@ -1,0 +1,53 @@
+<mxfile host="65bd71144e">
+    <diagram id="k-FFEYWuVuaUVLTwalEU" name="Page-1">
+        <mxGraphModel dx="1844" dy="637" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="850" pageHeight="1100" math="0" shadow="0">
+            <root>
+                <mxCell id="0"/>
+                <mxCell id="1" parent="0"/>
+                <mxCell id="5" value="public" style="text;html=1;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;" vertex="1" parent="1">
+                    <mxGeometry y="80" width="60" height="30" as="geometry"/>
+                </mxCell>
+                <mxCell id="6" value="local" style="text;html=1;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;" vertex="1" parent="1">
+                    <mxGeometry x="590" y="84" width="60" height="30" as="geometry"/>
+                </mxCell>
+                <mxCell id="7" value="" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+                    <mxGeometry x="-220" y="110" width="510" height="370" as="geometry"/>
+                </mxCell>
+                <mxCell id="8" value="" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+                    <mxGeometry x="350" y="110" width="550" height="370" as="geometry"/>
+                </mxCell>
+                <mxCell id="11" style="edgeStyle=none;html=1;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="9" target="10">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="16" value="Download&lt;br&gt;page first" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" vertex="1" connectable="0" parent="11">
+                    <mxGeometry x="0.0561" y="2" relative="1" as="geometry">
+                        <mxPoint as="offset"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="15" style="edgeStyle=none;html=1;" edge="1" parent="1" source="9" target="13">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="17" value="service js&lt;br&gt;loads json second" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" vertex="1" connectable="0" parent="15">
+                    <mxGeometry x="0.0772" y="-1" relative="1" as="geometry">
+                        <mxPoint as="offset"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="9" value="user browser" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FF9D40;" vertex="1" parent="1">
+                    <mxGeometry x="-200" y="130" width="50" height="30" as="geometry"/>
+                </mxCell>
+                <mxCell id="10" value="github pages" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFB46B;" vertex="1" parent="1">
+                    <mxGeometry x="120" y="135" width="80" height="20" as="geometry"/>
+                </mxCell>
+                <mxCell id="19" style="edgeStyle=none;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;" edge="1" parent="1" source="13" target="18">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="13" value="render.com" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFB46B;" vertex="1" parent="1">
+                    <mxGeometry x="-20" y="260" width="80" height="30" as="geometry"/>
+                </mxCell>
+                <mxCell id="18" value="api file&lt;br&gt;system reset after&lt;br&gt;50 seconds" style="shape=datastore;whiteSpace=wrap;html=1;fillColor=#FFB46B;" vertex="1" parent="1">
+                    <mxGeometry x="110" y="340" width="150" height="100" as="geometry"/>
+                </mxCell>
+            </root>
+        </mxGraphModel>
+    </diagram>
+</mxfile>
