@@ -1,5 +1,5 @@
-// const API_URL = "http://localhost:5144";
-const BASE_URL = "https://webintrofinal-parajulipeshal.onrender.com/";
+const BASE_URL = "http://localhost:5144";
+// const RENDER_URL = "https://webintrofinal-parajulipeshal.onrender.com/";
 const METRO_API_COORDINATE = "https://geocoding-api.open-meteo.com/v1/search";
 const OPEN_METEO_FORECAST = "https://api.open-meteo.com/v1/forecast";
 
