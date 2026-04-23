@@ -28,3 +28,5 @@
 /home/peshalparajuli/Desktop/introtoweb/webintrofinal-parajulipeshal/Backend/obj/Debug/net10.0/Backend.genruntimeconfig.cache
 /home/peshalparajuli/Desktop/introtoweb/webintrofinal-parajulipeshal/Backend/obj/Debug/net10.0/ref/Backend.dll
 /home/peshalparajuli/Desktop/introtoweb/webintrofinal-parajulipeshal/Backend/bin/Debug/net10.0/Backend.staticwebassets.runtime.json
+/home/peshalparajuli/Desktop/introtoweb/webintrofinal-parajulipeshal/Backend/bin/Debug/net10.0/crops.json
+/home/peshalparajuli/Desktop/introtoweb/webintrofinal-parajulipeshal/Backend/bin/Debug/net10.0/package.json

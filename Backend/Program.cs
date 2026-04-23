@@ -51,6 +51,7 @@ app.MapGet("/crops/{userName}/filter", (string userName, string cropName, string
     var query = crops.Where(c => c.UserName == userName);
 
     query = query.Where(c => c.CropType.Contains(cropName, StringComparison.OrdinalIgnoreCase));
+    //query = query.Where(c => c.CropType.ToLower().Contains(cropName.ToLower()));
 
     if (int.TryParse(quantity, out var quantityValue))
     {

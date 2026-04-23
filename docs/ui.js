@@ -136,7 +136,6 @@ const displayCrops = async (
 ) => {
   const renderCards = async () => {
     cardsContainerElement.replaceChildren();
-
     const crops = await GetCrops(username, {
       cropName: filterCropNameInputElement.value,
       quantity: filterQuantityInputElement.value,

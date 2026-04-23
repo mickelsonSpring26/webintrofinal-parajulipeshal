@@ -6,12 +6,14 @@
   --dark-white: #d9d9d9;
   --lighterDark-white: rgb(238, 225, 225);
   --progressBarColor: #e0e0e0;
+  --not-white: rgb(252, 252, 252);
 }
 
 body {
   font-family: Poppins, sans-serif;
   margin: 0;
   padding: 0;
+  background-color: var(--not-white);
 }
 .navbar {
   width: 100vw;
@@ -50,10 +52,13 @@ body {
   background: #fff;
   box-shadow: 0 1px 4px rgba(0, 0, 0, 0.08);
   max-width: 520px;
+  display: flex;
+  flex-direction: column;
 }
 
 .crop-card p {
   margin: 6px 0;
+  flex: 1;
 }
 
 .crop-card img {
@@ -68,9 +73,7 @@ body {
   flex-wrap: wrap;
 }
 
-.filters-container input,
-.filters-container select,
-.filters-container button {
+.filters-container input {
   padding: 8px;
   border: 1px solid #ccc;
   border-radius: 4px;
@@ -156,12 +159,13 @@ flex-direction: column;
 .user-button{
 margin-left: auto;
 display: flex;
-width: 150px;
+width: 155px;
 justify-content: space-between;
+margin-right: 20px;
 }
 .user-button button{
     background-color: var(--primary-color);
-    padding: 10px;
+    padding: 20 px;
     color: var(--lighterDark-white);
     border-radius: 5px;
 }
