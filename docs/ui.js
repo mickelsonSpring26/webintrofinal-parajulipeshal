@@ -1,48 +1,40 @@
-import { GetCurrentUser, SetCurrentUser } from "./domain.js";
+import {
+  GetCurrentUser,
+  SetCurrentUser,
+  calculateWateringReminder,
+  getUserFromQueryString,
+  CalculateGrowthStage,
+} from "./domain.js";
 import {
   AddCrop,
   GetCrops,
-  CalculateGrowthStage,
   DeleteCrop,
   GetHourlyTemperatureForLocation,
 } from "./service.js";
 
 let draggedCard = null;
-
-const calculateWateringReminder = (crop) => {
-  const frequency = Number(crop.wateringFrequencyDays);
-  if (!frequency) {
-    return "";
-  }
-
-  const today = new Date();
-  const planted = new Date(crop.plantingDate);
-  const daysSincePlanting = Math.floor((today - planted) / 86400000);
-  const remainder = daysSincePlanting % frequency;
-  const daysLeft = remainder === 0 ? frequency : frequency - remainder;
-
-  return `Water in ${daysLeft} day(s)`;
-};
+let isRendering = false;
 
 const createCropCardElement = async (crop, onDeleteSuccess) => {
   const cropCardElement = document.createElement("div");
   cropCardElement.classList.add("crop-card");
   cropCardElement.draggable = true;
 
-    const displayImageElement = document.createElement("img");
-    displayImageElement.src = crop.picture;
-    displayImageElement.width = 250;
-    displayImageElement.alt = "crop-image";
-    cropCardElement.appendChild(displayImageElement);
+  const displayImageElement = document.createElement("img");
+  displayImageElement.src = crop.picture;
+  displayImageElement.width = 250;
+  displayImageElement.alt = "crop-image";
+  cropCardElement.appendChild(displayImageElement);
 
   const cropTypeTextElement = document.createElement("h2");
   cropTypeTextElement.textContent = crop.cropType;
-  cropTypeTextElement.classList.add("crop-heading")
+  cropTypeTextElement.classList.add("crop-heading");
   cropCardElement.appendChild(cropTypeTextElement);
 
-    const fieldLocationTextElement = document.createElement("span");
-  fieldLocationTextElement.textContent = crop.fieldLocation + ` (${crop.plantingDate})`;
-  fieldLocationTextElement.classList.add("crop-location")
+  const fieldLocationTextElement = document.createElement("span");
+  fieldLocationTextElement.textContent =
+    crop.fieldLocation + ` (${crop.plantingDate})`;
+  fieldLocationTextElement.classList.add("crop-location");
   cropCardElement.appendChild(fieldLocationTextElement);
 
   const quantityTextElement = document.createElement("p");
@@ -52,11 +44,13 @@ const createCropCardElement = async (crop, onDeleteSuccess) => {
   const weather = await GetHourlyTemperatureForLocation(crop.fieldLocation);
 
   const weatherElevationElement = document.createElement("p");
-  weatherElevationElement.textContent = "Elevation: " + weather.elevation + " m";
+  weatherElevationElement.textContent =
+    "Elevation: " + weather.elevation + " m";
   cropCardElement.appendChild(weatherElevationElement);
 
   const weatherTemperatureElement = document.createElement("p");
-  weatherTemperatureElement.textContent = "Temperature: " + weather.firstHourTemperature + weather.unit;
+  weatherTemperatureElement.textContent =
+    "Temperature: " + weather.firstHourTemperature + weather.unit;
   cropCardElement.appendChild(weatherTemperatureElement);
 
   const wateringReminder = calculateWateringReminder(crop);
@@ -83,13 +77,22 @@ const createCropCardElement = async (crop, onDeleteSuccess) => {
   const progressBarElement = document.createElement("div");
   progressBarElement.classList.add("progress-bar");
   progressBarElement.style.width = growthStage.percentage + "%";
-  
+  // console.log(growthStage.percentage);
+  // progressBarElement.style.width = "50%";
+  // progressBarElement.style.height = "20px";
+  // progressBarElement.style.backgroundColor = "red";
+
   progressBarContainerElement.appendChild(progressBarElement);
-  
+
   const progressPercentTextElement = document.createElement("span");
   progressPercentTextElement.classList.add("progress-percent-text");
-  progressPercentTextElement.textContent = Math.round(growthStage.percentage) + "%";
+  progressPercentTextElement.textContent =
+    Math.round(growthStage.percentage) + "%";
   progressBarContainerElement.appendChild(progressPercentTextElement);
+
+  // console.log("Progress:", growthStage.percentage);
+  // console.log("Bar element:", progressBarElement);
+  // console.log("Width:", progressBarElement.style.width);
 
   cropCardElement.appendChild(progressBarContainerElement);
 
@@ -135,6 +138,10 @@ const displayCrops = async (
   filterQuantityInputElement,
 ) => {
   const renderCards = async () => {
+    if (isRendering) {
+      return;
+    }
+    isRendering = true;
     cardsContainerElement.replaceChildren();
     const crops = await GetCrops(username, {
       cropName: filterCropNameInputElement.value,
@@ -145,17 +152,13 @@ const displayCrops = async (
       const cropCardElement = await createCropCardElement(crop, renderCards);
       cardsContainerElement.appendChild(cropCardElement);
     }
+    isRendering = false;
   };
 
   filterCropNameInputElement.addEventListener("input", renderCards);
   filterQuantityInputElement.addEventListener("input", renderCards);
 
   await renderCards();
-};
-
-const getUserFromQueryString = () => {
-  const url = new URL(window.location);
-  return (url.searchParams.get("name") || "").trim();
 };
 
 const initLoginPage = () => {
@@ -209,7 +212,7 @@ const initDashboardPage = async () => {
   addCropFormElement.addEventListener("submit", async (e) => {
     e.preventDefault();
 
-    const imageData = imageInputElement.files?.[0];
+    const imageData = imageInputElement.files[0];
     let imageDataUrl = "";
     if (imageData) {
       imageDataUrl = await new Promise((resolve) => {
@@ -222,12 +225,12 @@ const initDashboardPage = async () => {
     const formData = new FormData(addCropFormElement);
     const cropData = {
       userName: username,
-      cropType: formData.get("cropType")?.toString() ?? "",
-      plantingDate: formData.get("plantingDate")?.toString() ?? "",
-      fieldLocation: formData.get("fieldLocation")?.toString() ?? "",
-      quantity: formData.get("quantity")?.toString() ?? "",
+      cropType: formData.get("cropType").toString() ?? "",
+      plantingDate: formData.get("plantingDate").toString() ?? "",
+      fieldLocation: formData.get("fieldLocation").toString() ?? "",
+      quantity: formData.get("quantity").toString() ?? "",
       wateringFrequencyDays:
-        formData.get("wateringFrequencyDays")?.toString() ?? "",
+        formData.get("wateringFrequencyDays").toString() ?? "",
       picture: imageDataUrl,
     };
 
@@ -256,10 +259,10 @@ const initDashboardPage = async () => {
 };
 
 if (document.getElementById("loginForm")) {
+  //without this the page didn't load as I am using both js file in both html files
   initLoginPage();
 }
 
 if (document.getElementById("dashboardPage")) {
   initDashboardPage();
 }
-

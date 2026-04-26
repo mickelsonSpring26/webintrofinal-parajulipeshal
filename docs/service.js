@@ -15,7 +15,7 @@ export const AddCrop = async (cropData) => {
 };
 
 export const GetCrops = async (username, filters = {}) => {
-  const cropName = (filters.cropName || "").trim();
+  const cropName = (filters.cropName || "").trim();  //this just says the filters are optional. 
   const quantity = (filters.quantity || "").toString().trim();
 
   const query = new URLSearchParams({
@@ -40,13 +40,15 @@ export const DeleteCrop = async (cropId) => {
 };
 
 export const GetCoordinatesForLocation = async (locationName) => {
-  const query = new URLSearchParams({
-    name: locationName,
+  const query = new URLSearchParams({     //this builds query string...
+    name: locationName,  
     count: "10",
     language: "en",
     format: "json",
   });
 
+  //this is just to convert location user enters into coordinates. My api uses coordinate rather than location.
+//found this is stackoverflow.
   const response = await fetch(`${METRO_API_COORDINATE}?${query.toString()}`);
   const data = await response.json();
   const results = data.results ?? [];
@@ -56,6 +58,7 @@ export const GetCoordinatesForLocation = async (locationName) => {
     (result) => (result.name ?? "").toLowerCase() === normalizedInput,
   );
 
+  //here sorting is being done by population (to show bigger city 1st/ famous one)
   const rankedMatches = exactMatches.length > 0 ? exactMatches : results;
   rankedMatches.sort((a, b) => (b.population ?? 0) - (a.population ?? 0));
 
@@ -70,6 +73,7 @@ export const GetCoordinatesForLocation = async (locationName) => {
 export const GetHourlyTemperatureForLocation = async (locationName) => {
   const location = await GetCoordinatesForLocation(locationName);
 
+  //this time, building query for weather api
   const query = new URLSearchParams({
     latitude: String(location.latitude),
     longitude: String(location.longitude),
@@ -84,33 +88,8 @@ export const GetHourlyTemperatureForLocation = async (locationName) => {
   const times = data.hourly.time;
 
   return {
-    locationName: location.name,
-    latitude: data.latitude,
-    longitude: data.longitude,
-    timezone: data.timezone,
     elevation: data.elevation,
-    unit: data.hourly_units.temperature_2m,
-    firstHourTime: times[0],
+    unit: data.hourly_units.temperature_2m,     //returning obj from api
     firstHourTemperature: temperatures[0],
   };
-};
-
-export const CalculateGrowthStage = (plantingDate) => {
-  const planted = new Date(plantingDate);
-  const today = new Date();
-  const daysSincePlanting = Math.floor((today - planted) / (1000 * 60 * 60 * 24));
-
-  if (daysSincePlanting < 0) {
-    return { stage: "Not Yet Planted", daysElapsed: 0, percentage: 0 };
-  } else if (daysSincePlanting < 7) {
-    return { stage: "Germination", daysElapsed: daysSincePlanting, percentage: (daysSincePlanting / 7) * 100 };
-  } else if (daysSincePlanting < 30) {
-    return { stage: "Seedling/Vegetative", daysElapsed: daysSincePlanting, percentage: ((daysSincePlanting - 7) / 23) * 100 + 14.28 };
-  } else if (daysSincePlanting < 60) {
-    return { stage: "Flowering", daysElapsed: daysSincePlanting, percentage: ((daysSincePlanting - 30) / 30) * 100 + 42.85 };
-  } else if (daysSincePlanting < 90) {
-    return { stage: "Fruiting/Grain Filling", daysElapsed: daysSincePlanting, percentage: ((daysSincePlanting - 60) / 30) * 100 + 71.42 };
-  } else {
-    return { stage: "Mature/Ready to Harvest", daysElapsed: daysSincePlanting, percentage: 100 };
-  }
 };

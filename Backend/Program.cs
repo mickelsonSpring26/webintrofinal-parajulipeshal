@@ -51,7 +51,6 @@ app.MapGet("/crops/{userName}/filter", (string userName, string cropName, string
     var query = crops.Where(c => c.UserName == userName);
 
     query = query.Where(c => c.CropType.Contains(cropName, StringComparison.OrdinalIgnoreCase));
-    //query = query.Where(c => c.CropType.ToLower().Contains(cropName.ToLower()));
 
     if (int.TryParse(quantity, out var quantityValue))
     {
@@ -78,11 +77,11 @@ app.Run();
 class Crop
 {
     public int Id { get; set; }
-    public string UserName { get; set; }
-    public string CropType { get; set; }
-    public string PlantingDate { get; set; }
-    public string FieldLocation { get; set; }
-    public string Quantity { get; set; }
-    public string Picture { get; set; }
+    public string? UserName { get; set; }
+    public string? CropType { get; set; }
+    public string? PlantingDate { get; set; }
+    public string? FieldLocation { get; set; }
+    public string? Quantity { get; set; }
+    public string? Picture { get; set; }
     public int? WateringFrequencyDays { get; set; }
 }

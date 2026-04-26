@@ -39,19 +39,31 @@
             <button id="logoutButton">Logout</button>
           </div>
         </div>
-        <div class="dashboard-bottom">
-          <div id="cropsDisplay">
-            <h1>Your Crops</h1>
-            <p>Filter by:</p>
+
+        <div class="dashboard-wrapper">
+          <aside class="filters-sidebar">
+            <h3>Filters</h3>
             <div class="filters-container">
               <label
-                >Crop name: <input id="filterCropName" type="text"
+                >Crop name:<br /><input
+                  id="filterCropName"
+                  type="text"
+                  placeholder="Search..."
               /></label>
-              <label>
-                Crop quantity: <input id="filterQuantity" type="number"
+              <label
+                >Crop quantity:<br /><input
+                  id="filterQuantity"
+                  type="number"
+                  placeholder="Search..."
               /></label>
             </div>
-            <div id="cardsContainer" class="cards-container"></div>
+          </aside>
+
+          <div class="dashboard-bottom">
+            <div id="cropsDisplay">
+              <h1>Your Crops</h1>
+              <div id="cardsContainer" class="cards-container"></div>
+            </div>
           </div>
         </div>
       </div>
@@ -76,28 +88,17 @@
             <label
               >Field Location:
               <input
-                type="text"
-                id="fieldLocation"
-                name="fieldLocation"
-                placeholder="Field Location"
-                required
+                type="text" id="fieldLocation" name="fieldLocation" placeholder="Field Location" required
             /></label>
             <label
               >Quantity:
               <input
-                type="number"
-                id="quantity"
-                name="quantity"
-                placeholder="Quantity"
-                required
+                type="number" id="quantity" name="quantity" placeholder="Quantity" required
             /></label>
             <label
               >Watering Frequency (Days):
               <input
-                type="number"
-                id="wateringFrequencyDays"
-                name="wateringFrequencyDays"
-                placeholder="Watering Frequency (Days)"
+                type="number" id="wateringFrequencyDays" name="wateringFrequencyDays" placeholder="Watering Frequency (Days)"
             /></label>
             <label>Picture: <input type="file" id="imageInput" /></label>
             <div class="form-buttons">
@@ -110,6 +111,11 @@
       <span id="null-check"></span>
       <footer class="footer">
         <span>Smart Forcaster | Made for Farmers</span>
+        <ul>
+          <li>Weather Forecasting</li>
+          <li>Crop Growth Tracking</li>
+          <li>Watering Reminders</li>
+        </ul>
       </footer>
     </div>
   </body>
